@@ -514,6 +514,22 @@ EOT
         },
       ]
     }
+    # Squish for Android license key (raw, not base64) consumed by the
+    # horizon-squish image build via the jenkins-squish-license-key credential.
+    # apply_value=false: Terraform creates the secret + grants access, but the
+    # value is added out-of-band (gcloud secrets versions add) so the license key
+    # never lands in terraform.tfvars or Terraform state.
+    s20 = {
+      secret_id   = "squish-license-key"
+      value       = "dummy"
+      apply_value = false
+      gke_access = [
+        {
+          ns = "jenkins"
+          sa = "jenkins-sa"
+        },
+      ]
+    }
   }
   sdv_gcp_github_app_secrets_map = {
     s1 = {

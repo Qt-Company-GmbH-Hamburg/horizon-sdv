@@ -48,18 +48,38 @@ This document outlines the steps required to provide the Squish License Key and 
 
 - A valid Squish License Key (provided by [The Qt Company](https://www.qt.io/quality-assurance/download)).
 
-### Add the Secret and URL to the Dockerfile
+### Provide the License Key
+
+Terraform creates the Secret Manager secret `squish-license-key` (empty) and grants
+`jenkins-sa` read access — but it does **not** store the key value, so the license key
+never lands in `terraform.tfvars` or Terraform state.
+
+After `terraform apply`, add the key value out-of-band (once):
+```bash
+printf '%s' '<LICENSE_KEY>' | \
+  gcloud secrets versions add squish-license-key \
+    --project="<GCP_PROJECT_ID>" --data-file=-
+```
+
+[`jenkins-init.yaml`](../../../../gitops/templates/jenkins-init.yaml) surfaces it as
+the Jenkins "secret text" credential `jenkins-squish-license-key`. The pipeline binds
+it with `withCredentials` and passes it to `buildctl` as
+`--secret id=squish_license_key`, which the Dockerfile consumes via
+`RUN --mount=type=secret,id=squish_license_key` (read from
+`/run/secrets/squish_license_key`).
+
+### Add the URL to the Dockerfile
 
 1. Open the [Dockerfile](Dockerfile)
 
 2. Navigate to the `RUN` command
 
-3. Replace `<URL>` and `<LICENSE_KEY>` with the one provided by The Qt Company
+3. Replace `<URL>` with the one provided by The Qt Company
 
 ### Troubleshooting
 
 If the build fails during the "Create Docker Image" stage, check the following:
 
-- Expired License: Verify the license string itself is still valid with The Qt Company.
+- Expired License: Verify the license string in Secret Manager (`squish-license-key`) is still valid with The Qt Company.
 
 - URL still valid: Verify the URL is still valid with The Qt Company.

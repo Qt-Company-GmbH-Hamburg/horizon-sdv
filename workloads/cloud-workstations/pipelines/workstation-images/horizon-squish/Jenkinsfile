@@ -120,19 +120,22 @@ pipeline {
           steps {
             container(name: 'buildkit') {
               catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh '''
-                  cd "${WORKSPACE}/partner/qt/cloud_workstations/horizon-squish/";
-                  cp -r "${WORKSPACE}/workloads/cloud-workstations/pipelines/workstation-images/common-utils/" ./common-utils/;
-                  buildctl build \
-                    --frontend=dockerfile.v0 \
-                    --local=dockerfile=. \
-                    --local context=. \
-                    --opt platform=linux/amd64 \
-                    --opt build-arg:HORIZON_DOMAIN=${HORIZON_DOMAIN} \
-                    --opt build-arg:GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT} \
-                    --registry-auth-tlscontext host=${REGISTRY},insecure=true \
-                    --output=type=image,name=${DESTINATION}:${IMAGE_TAG},push=${PUSH}
-                '''
+                withCredentials([string(credentialsId: 'jenkins-squish-license-key', variable: 'SQUISH_LICENSE_KEY')]) {
+                  sh '''
+                    cd "${WORKSPACE}/partner/qt/cloud_workstations/horizon-squish/";
+                    cp -r "${WORKSPACE}/workloads/cloud-workstations/pipelines/workstation-images/common-utils/" ./common-utils/;
+                    buildctl build \
+                      --frontend=dockerfile.v0 \
+                      --local=dockerfile=. \
+                      --local context=. \
+                      --opt platform=linux/amd64 \
+                      --opt build-arg:HORIZON_DOMAIN=${HORIZON_DOMAIN} \
+                      --opt build-arg:GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT} \
+                      --secret id=squish_license_key,env=SQUISH_LICENSE_KEY \
+                      --registry-auth-tlscontext host=${REGISTRY},insecure=true \
+                      --output=type=image,name=${DESTINATION}:${IMAGE_TAG},push=${PUSH}
+                  '''
+                }
               }
             }
           }

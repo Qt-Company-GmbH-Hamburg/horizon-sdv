@@ -55,12 +55,18 @@ RUN apt-get update && apt-get install -y \
     apt-get clean
 
 # Install Squish and Android cmd-tools
-RUN mkdir -p /opt/google && \
+RUN --mount=type=secret,id=squish_license_key \
+  mkdir -p /opt/google && \
   wget <URL> -O /opt/google/squish-for-android.run && \
   chmod +x /opt/google/squish-for-android.run && \
   # Perform unattended Squish installation
-  /opt/google/squish-for-android unattended=1 targetdir=/home/user/squish licensekey=<LICENSE_KEY> && \
+  /opt/google/squish-for-android.run unattended=1 targetdir=/home/user/squish \
+    licensekey="$(cat /run/secrets/squish_license_key)" && \
   rm /opt/google/squish-for-android.run && \
+  # Write the Squish license into HOME. /home is seeded from the image at runtime
+  # but re-owned to root, so tigervnc.service re-owns this file to 'user' at boot.
+  printf '{ "format": "local", "key": "%s" }\n' "$(cat /run/secrets/squish_license_key)" > /home/user/.squish-license && \
+  chmod 0600 /home/user/.squish-license && \
   wget https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip -O commandlinetools.zip && \
   unzip commandlinetools.zip -d /opt/google/ && \
   rm commandlinetools.zip && \

@@ -7,12 +7,12 @@ After=network-online.target
 Type=simple
 User=user
 Environment=HOME=/home/user USER=user DISPLAY=:1
-# Cloud Workstations finishes mounting /home AFTER the workstation-startup.d
-# scripts run, leaving /home/user owned by root and resetting any earlier chown.
-# The leading '+' runs this pre-step as root despite User=user, immediately
-# before the session, so GNOME can write ~/.cache, ~/.cache/dconf and
-# ~/.ICEauthority (otherwise gnome-session aborts and Xtigervnc cleanly exits).
-ExecStartPre=+/bin/bash -c 'mkdir -p /home/user/.cache && chown user:user /home/user /home/user/.cache'
+# Cloud Workstations seeds /home from the image but re-owns /home/user to root
+# at runtime (after the workstation-startup.d scripts), so any earlier chown is
+# wiped. The leading '+' runs this as root despite User=user, immediately before
+# the session: re-own HOME (so GNOME can write ~/.cache, ~/.cache/dconf,
+# ~/.ICEauthority), the baked Squish license, and the Squish install.
+ExecStartPre=+/bin/bash -c 'mkdir -p /home/user/.cache && chown user:user /home/user /home/user/.cache /home/user/.squish-license && chown -R user:user /home/user/squish'
 ExecStartPre=/bin/bash -c '/usr/bin/vncserver -kill :1 > /dev/null 2>&1 || :'
 ExecStartPre=/bin/bash -c 'rm -rf /tmp/.X11-unix/X1 /tmp/.X1-lock || :'
 ExecStart=/usr/bin/vncserver :1 -geometry 1920x1200 -depth 24 -localhost no -fg -SecurityTypes None --I-KNOW-THIS-IS-INSECURE
