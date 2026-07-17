@@ -7,6 +7,12 @@ After=network-online.target
 Type=simple
 User=user
 Environment=HOME=/home/user USER=user DISPLAY=:1
+# Cloud Workstations finishes mounting /home AFTER the workstation-startup.d
+# scripts run, leaving /home/user owned by root and resetting any earlier chown.
+# The leading '+' runs this pre-step as root despite User=user, immediately
+# before the session, so GNOME can write ~/.cache, ~/.cache/dconf and
+# ~/.ICEauthority (otherwise gnome-session aborts and Xtigervnc cleanly exits).
+ExecStartPre=+/bin/bash -c 'mkdir -p /home/user/.cache && chown user:user /home/user /home/user/.cache'
 ExecStartPre=/bin/bash -c '/usr/bin/vncserver -kill :1 > /dev/null 2>&1 || :'
 ExecStartPre=/bin/bash -c 'rm -rf /tmp/.X11-unix/X1 /tmp/.X1-lock || :'
 ExecStart=/usr/bin/vncserver :1 -geometry 1920x1200 -depth 24 -localhost no -fg -SecurityTypes None --I-KNOW-THIS-IS-INSECURE

@@ -8,6 +8,12 @@ Type=simple
 User=user
 Restart=always
 RestartSec=3
+# After=tigervnc.service only orders activation, not readiness: TigerVNC is
+# Type=simple so systemd treats it "started" the moment vncserver execs, before
+# it is listening on 5901. Without this gate novnc_proxy can come up first and
+# the browser's WebSocket fails (code 1006). Wait until 5901 actually accepts
+# connections (up to 90s) before starting the proxy.
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 90); do (echo > /dev/tcp/localhost/5901) >/dev/null 2>&1 && exit 0; sleep 1; done; exit 0'
 ExecStart=/opt/noVNC/utils/novnc_proxy --listen 80 --vnc localhost:5901
 
 [Install]
