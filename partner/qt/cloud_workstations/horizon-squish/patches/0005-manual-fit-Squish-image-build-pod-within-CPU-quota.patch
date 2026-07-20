@@ -1,0 +1,50 @@
+From 929ddfb13f2a548c9bc7aec3a2abbff45101eed9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jakub=20=C5=BBurkowski?= <jakub.zurkowski@qt.io>
+Date: Wed, 22 Jul 2026 13:11:22 +0200
+Subject: [PATCH] manual: fit Squish image build pod within CPU quota
+
+Drop the dedicated `android` node-pool selector/toleration and cut build-pod
+requests (98 vCPU / 180 GiB -> 2-3 vCPU / 6-10 GiB) so the image build schedules
+on the default pool instead of stalling Pending / timing out under the
+CPUS_ALL_REGIONS=32 cap.
+---
+ .../workstation-images/horizon-squish/Jenkinsfile | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+diff --git a/workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/Jenkinsfile b/workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/Jenkinsfile
+index dc4a61a..c64dea0 100644
+--- a/workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/Jenkinsfile
++++ b/workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/Jenkinsfile
+@@ -44,11 +44,6 @@ pipeline {
+         labels:
+           cloud_ws_horizon_squish_for_android_build_pod: "true"
+       spec:
+-        tolerations:
+-          - key: workloadType
+-            operator: Equal
+-            value: android
+-            effect: "NoSchedule"
+         affinity:
+           podAntiAffinity:
+             requiredDuringSchedulingIgnoredDuringExecution:
+@@ -82,13 +77,11 @@ pipeline {
+             privileged: true
+           resources:
+             limits:
+-              cpu: 98000m
+-              memory: 180000Mi
++              cpu: "3"
++              memory: 10Gi
+             requests:
+-              cpu: 98000m
+-              memory: 180000Mi
+-        nodeSelector:
+-          workloadLabel: android
++              cpu: "2"
++              memory: 6Gi
+     """.stripIndent()
+   }
+ 
+-- 
+2.43.0
+

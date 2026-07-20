@@ -1,0 +1,27 @@
+From 553b0a683b4681c7a03fed4c4a98aa30a160b19c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jakub=20=C5=BBurkowski?= <jakub.zurkowski@qt.io>
+Date: Wed, 22 Jul 2026 11:55:53 +0200
+Subject: [PATCH] manual: map Squish image name in seed replacements
+
+Add CLOUD_WS_HORIZON_SQUISH_FOR_ANDROID_IMAGE_NAME to the cloud-workstations
+`replacements` array in the seed Jenkinsfile so the token is substituted before
+Job DSL runs; without it, seeding fails with the sandbox-blocked getProperty error.
+---
+ workloads/seed/Jenkinsfile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/workloads/seed/Jenkinsfile b/workloads/seed/Jenkinsfile
+index d813f8d..a45de3e 100644
+--- a/workloads/seed/Jenkinsfile
++++ b/workloads/seed/Jenkinsfile
+@@ -538,6 +538,7 @@ pipeline {
+                   ['${CLOUD_WS_HORIZON_CODE_OSS_IMAGE_NAME}', "${CLOUD_WS_HORIZON_CODE_OSS_IMAGE_NAME}"],
+                   ['${CLOUD_WS_HORIZON_ASFP_IMAGE_NAME}', "${CLOUD_WS_HORIZON_ASFP_IMAGE_NAME}"],
+                   ['${CLOUD_WS_HORIZON_ANDROID_STUDIO_IMAGE_NAME}', "${CLOUD_WS_HORIZON_ANDROID_STUDIO_IMAGE_NAME}"],
++                  ['${CLOUD_WS_HORIZON_SQUISH_FOR_ANDROID_IMAGE_NAME}', "${CLOUD_WS_HORIZON_SQUISH_FOR_ANDROID_IMAGE_NAME}"],
+                   ['${BUILDKIT_RELEASE_TAG}', "${BUILDKIT_RELEASE_TAG}"],
+                   ['${DOCKER_CREDENTIALS_URL}', "${DOCKER_CREDENTIALS_URL}"]
+                 ]
+-- 
+2.43.0
+

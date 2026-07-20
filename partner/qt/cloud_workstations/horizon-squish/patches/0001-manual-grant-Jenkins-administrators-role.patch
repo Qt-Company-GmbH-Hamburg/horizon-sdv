@@ -1,0 +1,28 @@
+From fc3c7a0f7a2f1588529a8a76a481084452bd07c7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jakub=20=C5=BBurkowski?= <jakub.zurkowski@qt.io>
+Date: Mon, 27 Jul 2026 08:29:30 +0200
+Subject: [PATCH] manual: grant Jenkins administrators role
+
+Add a user account to the `administrators` role (Keycloak group membership
+alone doesn't grant admin).
+---
+ gitops/workloads/values-jenkins.yaml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/gitops/workloads/values-jenkins.yaml b/gitops/workloads/values-jenkins.yaml
+index 231607a..0ad30c2 100644
+--- a/gitops/workloads/values-jenkins.yaml
++++ b/gitops/workloads/values-jenkins.yaml
+@@ -271,8 +271,7 @@ controller:
+                       - "Overall/Administer"
+                     entries:
+                       - group: "administrators"
+-                      # Example user
+-                      # - user: "john.doe@example.com"
++                      - user: "your-email@example.com"
+                   - name: "developers"
+                     description: "Developer access: run builds on agents, create jobs; workload permissions via item role."
+                     permissions:
+-- 
+2.43.0
+

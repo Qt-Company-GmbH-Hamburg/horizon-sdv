@@ -1,0 +1,19 @@
+From dbfb60d34a9fd8141ce82a7899c47df5194f6882 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jakub=20=C5=BBurkowski?= <jakub.zurkowski@qt.io>
+Date: Wed, 22 Jul 2026 11:41:08 +0200
+Subject: [PATCH] manual: move Squish job.groovy into scanned path
+
+Relocate the Squish job so the Seed job's Job DSL scan discovers
+and generates the Squish image pipeline.
+---
+ .../workstation-images}/horizon-squish/groovy/job.groovy          | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename {partner/qt/cloud_workstations => workloads/cloud-workstations/pipelines/workstation-images}/horizon-squish/groovy/job.groovy (100%)
+
+diff --git a/partner/qt/cloud_workstations/horizon-squish/groovy/job.groovy b/workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/groovy/job.groovy
+similarity index 100%
+rename from partner/qt/cloud_workstations/horizon-squish/groovy/job.groovy
+rename to workloads/cloud-workstations/pipelines/workstation-images/horizon-squish/groovy/job.groovy
+-- 
+2.43.0
+
